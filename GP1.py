@@ -18,18 +18,24 @@ GPIO.setup(button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 current_color = 0
 
 def set_color(color):
-    GPIO.output(red_pin, color == 0)
-    GPIO.output(green_pin, color == 1)
-    GPIO.output(blue_pin, color == 2)
+    if color == 0:
+        GPIO.output(red_pin, GPIO.HIGH)
+        GPIO.output(green_pin, GPIO.LOW)
+        GPIO.output(blue_pin, GPIO.LOW)
+    elif color == 1:
+        GPIO.output(red_pin, GPIO.LOW)
+        GPIO.output(green_pin, GPIO.HIGH)
+        GPIO.output(blue_pin, GPIO.LOW)
+    elif color == 2:
+        GPIO.output(red_pin, GPIO.LOW)
+        GPIO.output(green_pin, GPIO.LOW)
+        GPIO.output(blue_pin, GPIO.HIGH)
 
 def button_callback(channel):
     global current_color
     current_color = (current_color + 1) % 3
     set_color(current_color)
-
-# Cleanup GPIO to avoid edge detection failure
-GPIO.cleanup()
-
+    
 # Setup event detection on button pin
 GPIO.add_event_detect(button_pin, GPIO.FALLING, callback=button_callback, bouncetime=300)
 
