@@ -40,10 +40,7 @@ def button_callback(channel):
 GPIO.add_event_detect(button_pin, GPIO.FALLING, callback=button_callback, bouncetime=300)
 
 try:
-    set_color(current_color)
     while True:
-        time.sleep(0.1)
+        time.sleep(1)
 except KeyboardInterrupt:
-    pass
-finally:
     GPIO.cleanup()
