@@ -1,57 +1,67 @@
 import RPi.GPIO as GPIO
 import time
 
+# Setup GPIO
 GPIO.setmode(GPIO.BCM)
 
-
+# Pin Definitions
 red = 17
 yellow = 27
 blue = 22
-
 button = 18
 
+# Setup pins
 GPIO.setup(red, GPIO.OUT)
 GPIO.setup(yellow, GPIO.OUT)
 GPIO.setup(blue, GPIO.OUT)
 GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
+# Initial state
+state = 0
+
+# Function to set LED colors
+def set_led(state):
+    if state == 0:
+        GPIO.output(red, 0)
+        GPIO.output(yellow, 0)
+        GPIO.output(blue, 0)
+    elif state == 1:
+        GPIO.output(red, 1)
+        GPIO.output(yellow, 0)
+        GPIO.output(blue, 0)
+    elif state == 2:
+        GPIO.output(red, 0)
+        GPIO.output(yellow, 1)
+        GPIO.output(blue, 0)
+    elif state == 3:
+        GPIO.output(red, 0)
+        GPIO.output(yellow, 0)
+        GPIO.output(blue, 1)
+    elif state == 4:
+        GPIO.output(red, 1)
+        GPIO.output(yellow, 1)
+        GPIO.output(blue, 0)
+    elif state == 5:
+        GPIO.output(red, 1)
+        GPIO.output(yellow, 0)
+        GPIO.output(blue, 1)
+    elif state == 6:
+        GPIO.output(red, 0)
+        GPIO.output(yellow, 1)
+        GPIO.output(blue, 1)
+    elif state == 7:
+        GPIO.output(red, 1)
+        GPIO.output(yellow, 1)
+        GPIO.output(blue, 1)
+
 try:
     while True:
-        i = GPIO.input(button)
-
-        #change each time button is pressed
-        # 0 = off, 1 = red, 2 = yellow, 3 = blue
-        # 4 = red + yellow, 5 = red + blue, 6 = yellow + blue
-
-        if i == 0:
-            GPIO.output(red, 0)
-            GPIO.output(yellow, 0)
-            GPIO.output(blue, 0)
-        elif i == 1:
-            GPIO.output(red, 1)
-            GPIO.output(yellow, 0)
-            GPIO.output(blue, 0)
-        elif i == 2:
-            GPIO.output(red, 0)
-            GPIO.output(yellow, 1)
-            GPIO.output(blue, 0)
-        elif i == 3:
-            GPIO.output(red, 0)
-            GPIO.output(yellow, 0)
-            GPIO.output(blue, 1)
-        elif i == 4:
-            GPIO.output(red, 1)
-            GPIO.output(yellow, 1)
-            GPIO.output(blue, 0)
-        elif i == 5:
-            GPIO.output(red, 1)
-            GPIO.output(yellow, 0)
-            GPIO.output(blue, 1)
-        elif i == 6:
-            GPIO.output(red, 0)
-            GPIO.output(yellow, 1)
-            GPIO.output(blue, 1)
-        time.sleep(0.1)
-finally:
-    GPIO.cleanup()            
-
+        button_state = GPIO.input(button)
+        if button_state == 0:  # Button pressed
+            state = (state + 1) % 8  # Cycle through 8 states
+            set_led(state)
+            time.sleep(0.3)  # Debounce delay
+        else:
+            time.sleep(0.1)  # Polling delay
+except KeyboardInterrupt:
+    GPIO.cleanup()
