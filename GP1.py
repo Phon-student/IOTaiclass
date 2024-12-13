@@ -16,7 +16,7 @@ GPIO.setup(blue, GPIO.out)
 GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 try:
-    while True
+    while True:
         i = GPIO.input(button)
 
         #change each time button is pressed
