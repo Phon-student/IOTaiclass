@@ -13,7 +13,7 @@ button = 18
 GPIO.setup(red, GPIO.out)
 GPIO.setup(yellow, GPIO.out)
 GPIO.setup(blue, GPIO.out)
-GPIO.setup(button, GPIO.in, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 try:
     while True
