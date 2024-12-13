@@ -14,7 +14,7 @@ button = 18
 GPIO.setup(red, GPIO.OUT)
 GPIO.setup(yellow, GPIO.OUT)
 GPIO.setup(blue, GPIO.OUT)
-GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 # Initial state
 state = 0
