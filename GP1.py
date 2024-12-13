@@ -10,9 +10,9 @@ blue = 22
 
 button = 18
 
-GPIO.setup(red, GPIO.out)
-GPIO.setup(yellow, GPIO.out)
-GPIO.setup(blue, GPIO.out)
+GPIO.setup(red, GPIO.OUT)
+GPIO.setup(yellow, GPIO.OUT)
+GPIO.setup(blue, GPIO.OUT)
 GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 try:
