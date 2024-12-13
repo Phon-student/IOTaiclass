@@ -1,64 +1,40 @@
-#change LED color that connect to rpi gpio everytimes button is pressed
-# only one LED is connected
-# LED color will change from red, green, blue, yellow, cyan, magenta, white
-
 import RPi.GPIO as GPIO
 import time
 
-# set up GPIO using BCM numbering
+# Pin definitions
+red_pin = 17
+green_pin = 27
+blue_pin = 22
+button_pin = 18
+
+# Setup GPIO
 GPIO.setmode(GPIO.BCM)
+GPIO.setup(red_pin, GPIO.OUT)
+GPIO.setup(green_pin, GPIO.OUT)
+GPIO.setup(blue_pin, GPIO.OUT)
+GPIO.setup(button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-# set up GPIO pin as input and output
-GPIO.setup(18, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(23, GPIO.OUT)
-GPIO.setup(24, GPIO.OUT)
+# Initial LED state
+current_color = 0
 
-# set up PWM
-pwmR = GPIO.PWM(23, 100)
-pwmG = GPIO.PWM(24, 100)
+def set_color(color):
+    GPIO.output(red_pin, color == 0)
+    GPIO.output(green_pin, color == 1)
+    GPIO.output(blue_pin, color == 2)
 
-# start PWM with 0% duty cycle
-pwmR.start(0)
-pwmG.start(0)
+def button_callback(channel):
+    global current_color
+    current_color = (current_color + 1) % 3
+    set_color(current_color)
 
-# set up color
-def setColor(r, g):
-    pwmR.ChangeDutyCycle(r)
-    pwmG.ChangeDutyCycle(g)
+# Setup event detection on button pin
+GPIO.add_event_detect(button_pin, GPIO.FALLING, callback=button_callback, bouncetime=300)
 
-#on click swap color
-def swapColor(color):
-    if color == 'red':
-        setColor(100, 0)
-        return 'green'
-    elif color == 'green':
-        setColor(0, 100)
-        return 'blue'
-    elif color == 'blue':
-        setColor(100, 100)
-        return 'yellow'
-    elif color == 'yellow':
-        setColor(0, 100)
-        return 'cyan'
-    elif color == 'cyan':
-        setColor(100, 0)
-        return 'magenta'
-    elif color == 'magenta':
-        setColor(100, 100)
-        return 'white'
-    elif color == 'white':
-        setColor(0, 0)
-        return 'red'
-
-color = 'red'
-while True:
-    input_state = GPIO.input(18)
-    if input_state == False:
-        color = swapColor(color)
-        time.sleep(0.2)
-# stop PWM
-pwmR.stop()
-
-# clean up GPIO
-GPIO.cleanup()
-
+try:
+    set_color(current_color)
+    while True:
+        time.sleep(0.1)
+except KeyboardInterrupt:
+    pass
+finally:
+    GPIO.cleanup()
