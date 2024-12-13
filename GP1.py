@@ -27,6 +27,9 @@ def button_callback(channel):
     current_color = (current_color + 1) % 3
     set_color(current_color)
 
+# Cleanup GPIO to avoid edge detection failure
+GPIO.cleanup()
+
 # Setup event detection on button pin
 GPIO.add_event_detect(button_pin, GPIO.FALLING, callback=button_callback, bouncetime=300)
 
