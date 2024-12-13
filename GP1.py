@@ -58,7 +58,7 @@ try:
     while True:
         button_state = GPIO.input(button)
         print(f"Button state: {button_state}")
-        if button_state == 0:  # Button pressed
+        if button_state == 1:  # Button pressed
             state = (state + 1) % 8  # Cycle through 8 states
             print(f"State changed to: {state}")  # Debug print
             set_led(state)
