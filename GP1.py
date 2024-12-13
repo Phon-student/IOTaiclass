@@ -1,6 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 
+GPIO.cleanup()
 # Pin definitions
 red_pin = 17
 green_pin = 27
