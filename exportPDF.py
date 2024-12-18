@@ -1,16 +1,16 @@
-import matplotlib.pyplot as plt
+from fpdf import FPDF
 
-def convert_to_pdf_matplotlib(input_file, output_pdf):
+def convert_to_pdf_fpdf(input_file, output_pdf):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+
     with open(input_file, 'r') as python_file:
         content = python_file.read()
-        fig, ax = plt.subplots()
-        ax.text(0.1, 0.5, content, wrap=True, fontsize=12)
-        ax.axis('off')
+        pdf.multi_cell(0, 10, content)
 
-        plt.savefig(output_pdf, format='pdf')
+    pdf.output(output_pdf)
 
-if __name__ == "__main__":
-    input_file = input("Enter the input Python file name: ")
-    output_pdf = input("Enter the output PDF file name: ")
-    convert_to_pdf_matplotlib(input_file, output_pdf)
-    print("PDF is Saved Successfully")
+# Example usage:
+convert_to_pdf_fpdf('GP1.py', 'lab1.pdf')
+print("PDF is Saved Successfully")
