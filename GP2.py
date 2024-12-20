@@ -2,10 +2,7 @@ import RPi.GPIO as GPIO
 import threading
 import time
 
-# Setup GPIO
-GPIO.setmode(GPIO.BCM)
-
-# Pin Definitions
+# Pin setup
 red = 17
 yellow = 27
 blue = 22
@@ -13,91 +10,86 @@ button = 18
 green = 10
 red2 = 9
 
-# Setup pins
+# GPIO setup
+GPIO.setmode(GPIO.BCM)
 GPIO.setup(red, GPIO.OUT)
 GPIO.setup(yellow, GPIO.OUT)
 GPIO.setup(blue, GPIO.OUT)
-GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_UP)  # Pull-up for button
 GPIO.setup(green, GPIO.OUT)
 GPIO.setup(red2, GPIO.OUT)
 
-# LED color states
-color_states = {
-    0: (0, 0, 0),  # All off
-    1: (1, 0, 0),  # Red
-    2: (0, 1, 0),  # Yellow
-    3: (0, 0, 1),  # Blue
-    4: (1, 1, 0),  # Orange (Red + Yellow)
-    5: (1, 0, 1),  # Purple (Red + Blue)
-    6: (0, 1, 1),  # Cyan (Yellow + Blue)
-    7: (1, 1, 1),  # White (Red + Yellow + Blue)
-}
+# PWM setup for Green LED
+green_pwm = GPIO.PWM(green, 100)  # 100 Hz PWM frequency
+green_pwm.start(0)  # Start with 0% duty cycle
 
-# Thread 1: RGB LED changes every second
-def thread1():
+# LED color states (Main Task)
+color_states = [
+    (1, 0, 0),  # Red
+    (0, 1, 0),  # Yellow
+    (0, 0, 1),  # Blue
+    (1, 1, 0),  # Red + Yellow
+    (1, 0, 1),  # Red + Blue
+    (0, 1, 1),  # Yellow + Blue
+    (1, 1, 1)   # All on (White)
+]
+
+# Global variable for button state
+button_pressed = False
+
+# Function to set RGB LED colors
+def set_rgb_color(r, y, b):
+    GPIO.output(red, r)
+    GPIO.output(yellow, y)
+    GPIO.output(blue, b)
+
+# Main task: RGB LED changes color every second
+def main_task():
     while True:
         for state in color_states:
-            set_led(state)
+            set_rgb_color(*state)
             time.sleep(1)
 
-# Thread 2: PWM Green LED dimming
-def thread2():
-    pwm = GPIO.PWM(green, 100)
-    pwm.start(0)
+# Sub-thread: Green LED dimming
+def dimming_task():
     while True:
-        for duty_cycle in range(10, 101, 10):
-            pwm.ChangeDutyCycle(duty_cycle)
-            time.sleep(2)
-        for duty_cycle in range(100, 9, -10):
-            pwm.ChangeDutyCycle(duty_cycle)
-            time.sleep(2)
+        for duty in range(10, 101, 10):  # Increase brightness
+            green_pwm.ChangeDutyCycle(duty)
+            time.sleep(0.2)  # 2 seconds per cycle
+        for duty in range(100, 9, -10):  # Decrease brightness
+            green_pwm.ChangeDutyCycle(duty)
+            time.sleep(0.2)
 
-# Event: Button press toggles red2 LED on/off
-def event():
+# Event task: Toggle Red2 LED on button press
+def button_event(channel):
+    global button_pressed
+    button_pressed = not button_pressed
+    GPIO.output(red2, button_pressed)
+    print(f"Red2 LED {'ON' if button_pressed else 'OFF'}")
+
+# Add button press event detection
+GPIO.add_event_detect(button, GPIO.FALLING, callback=button_event, bouncetime=300)
+
+# Main function
+if __name__ == "__main__":
     try:
-        # Ensure button is set up as input
-        GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.add_event_detect(button, GPIO.RISING, callback=button_callback, bouncetime=500)
-    except RuntimeError as e:
-        print(f"Event setup failed: {e}. Cleaning up and retrying.")
-        GPIO.cleanup(button)  # Clean up button pin
-        GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.add_event_detect(button, GPIO.RISING, callback=button_callback, bouncetime=500)
+        # Create threads
+        main_thread = threading.Thread(target=main_task)
+        dimming_thread = threading.Thread(target=dimming_task)
 
-# Set LED colors based on state
-def set_led(state):
-    if state in color_states:
-        GPIO.output(red, color_states[state][0])
-        GPIO.output(yellow, color_states[state][1])
-        GPIO.output(blue, color_states[state][2])
-    else:
-        print(f"Invalid LED state: {state}")
+        # Start threads
+        main_thread.start()
+        dimming_thread.start()
 
-# Button callback: Toggle red2 LED
-def button_callback(channel):
-    current_state = GPIO.input(red2)
-    GPIO.output(red2, not current_state)
-    print(f"Red2 LED toggled to {'ON' if not current_state else 'OFF'}")
+        # Keep the program running
+        main_thread.join()
+        dimming_thread.join()
 
+    except KeyboardInterrupt:
+        print("Program interrupted by user.")
 
-# Main program
-try:
-    # Create and start threads
-    t1 = threading.Thread(target=thread1)
-    t2 = threading.Thread(target=thread2)
-    t1.start()
-    t2.start()
-
-    # Set up event
-    event()
-
-    # Wait for threads to finish
-    t1.join()
-    t2.join()
-
-except KeyboardInterrupt:
-    print("Keyboard Interrupt")
-
-finally:
-    GPIO.cleanup()
-    print("GPIO Cleaned up")
+    finally:
+        # Cleanup
+        green_pwm.stop()
+        GPIO.cleanup()
+        print("GPIO cleaned up.")
