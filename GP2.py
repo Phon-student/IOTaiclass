@@ -15,7 +15,7 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(red, GPIO.OUT)
 GPIO.setup(yellow, GPIO.OUT)
 GPIO.setup(blue, GPIO.OUT)
-GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_UP)  # Pull-up for button
+GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Pull-down for button
 GPIO.setup(green, GPIO.OUT)
 GPIO.setup(red2, GPIO.OUT)
 
@@ -42,9 +42,11 @@ def set_rgb_color(r, y, b):
     GPIO.output(red, r)
     GPIO.output(yellow, y)
     GPIO.output(blue, b)
+    print(f"RGB LEDs set to: Red={r}, Yellow={y}, Blue={b}")
 
 # Main task: RGB LED changes color every second
 def main_task():
+    print("Main task (RGB LED color cycle) started.")
     while True:
         for state in color_states:
             set_rgb_color(*state)
@@ -52,12 +54,15 @@ def main_task():
 
 # Sub-thread: Green LED dimming
 def dimming_task():
+    print("Dimming task (Green LED) started.")
     while True:
         for duty in range(10, 101, 10):  # Increase brightness
             green_pwm.ChangeDutyCycle(duty)
-            time.sleep(0.2)  # 2 seconds per cycle
+            print(f"Green LED dimming: Brightness={duty}%")
+            time.sleep(0.2)
         for duty in range(100, 9, -10):  # Decrease brightness
             green_pwm.ChangeDutyCycle(duty)
+            print(f"Green LED dimming: Brightness={duty}%")
             time.sleep(0.2)
 
 # Event task: Toggle Red2 LED on button press
@@ -81,15 +86,11 @@ if __name__ == "__main__":
         # Start threads
         main_thread.start()
         dimming_thread.start()
+        print("Threads started. Main and dimming tasks are running.")
 
         # Keep the program running
         main_thread.join()
         dimming_thread.join()
-
-        #print debugging message
-        print("Threads started.")
-
-
 
     except KeyboardInterrupt:
         print("Program interrupted by user.")
@@ -98,4 +99,4 @@ if __name__ == "__main__":
         # Cleanup
         green_pwm.stop()
         GPIO.cleanup()
-        print("GPIO cleaned up.")
+        print("GPIO cleaned up. Program terminated.")
