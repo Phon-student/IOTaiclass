@@ -1,4 +1,4 @@
-import rpi.GPIO as GPIO
+import RPi.GPIO as GPIO
 
 #two paralle threads and 1 events
 #main task : RGBLE change every 1 second
