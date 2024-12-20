@@ -1,13 +1,9 @@
 import RPi.GPIO as GPIO
-import _thread
+import threading
 import time
 
-#two paralle threads and 1 events
-#main task : RGBLE change every 1 second
-#event task : button press, LED on/off
-#sub thread : Green LED dim in cycle 10 -> 20-> 100 -> 10 -> 20 every 2 second 
-
 # Setup GPIO
+GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 
 # Pin Definitions
@@ -26,81 +22,65 @@ GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(green, GPIO.OUT)
 GPIO.setup(red2, GPIO.OUT)
 
-def thread1(): #RGBLED change every 1 second
-    while True:
+# Global flag for thread control
+running = True
+
+def thread1():  # RGB LED changes every 1 second
+    while running:
         for i in range(8):
             set_led(i)
             time.sleep(1)
 
-def thread2(): #PWM green LED
-    #PWM
+def thread2():  # PWM green LED
     pwm = GPIO.PWM(green, 100)
     pwm.start(0)
-    while True:
-        for i in range(10, 101, 10):
-            pwm.ChangeDutyCycle(i)
-            time.sleep(2)
-        for i in range(100, 9, -10):
-            pwm.ChangeDutyCycle(i)
-            time.sleep(2)
+    try:
+        while running:
+            for i in range(10, 101, 10):
+                pwm.ChangeDutyCycle(i)
+                time.sleep(2)
+            for i in range(100, 9, -10):
+                pwm.ChangeDutyCycle(i)
+                time.sleep(2)
+    finally:
+        pwm.stop()
 
-
-def event(): #button press, LED on/off of red2 LED
+def event():  # Button press, toggle red2 LED
+    GPIO.remove_event_detect(button)
     GPIO.add_event_detect(button, GPIO.RISING, callback=button_callback, bouncetime=200)
 
 def set_led(state):
-    if state == 0:
-        GPIO.output(red, 0)
-        GPIO.output(yellow, 0)
-        GPIO.output(blue, 0)
-    elif state == 1:
-        GPIO.output(red, 1)
-        GPIO.output(yellow, 0)
-        GPIO.output(blue, 0)
-    elif state == 2:
-        GPIO.output(red, 0)
-        GPIO.output(yellow, 1)
-        GPIO.output(blue, 0)
-    elif state == 3:
-        GPIO.output(red, 0)
-        GPIO.output(yellow, 0)
-        GPIO.output(blue, 1)
-    elif state == 4:
-        GPIO.output(red, 1)
-        GPIO.output(yellow, 1)
-        GPIO.output(blue, 0)
-    elif state == 5:
-        GPIO.output(red, 1)
-        GPIO.output(yellow, 0)
-        GPIO.output(blue, 1)
-    elif state == 6:
-        GPIO.output(red, 0)
-        GPIO.output(yellow, 1)
-        GPIO.output(blue, 1)
-    elif state == 7:
-        GPIO.output(red, 1)
-        GPIO.output(yellow, 1)
-        GPIO.output(blue, 1)
+    GPIO.output(red, bool(state & 0b001))
+    GPIO.output(yellow, bool(state & 0b010))
+    GPIO.output(blue, bool(state & 0b100))
 
 def button_callback(channel):
-    #read the state of the button
-    button_state = GPIO.input(button)
-    print(f"Button state: {button_state}")
+    # Toggle the red2 LED
+    GPIO.output(red2, not GPIO.input(red2))
+    print(f"Red2 LED toggled to {'ON' if GPIO.input(red2) else 'OFF'}")
 
-    #toggle the red2 LED
-    if GPIO.input(red2):
-        GPIO.output(red2, 0)
-    else:
-        GPIO.output(red2, 1)
-
-        
 if __name__ == '__main__':
     try:
-        _thread.start_new_thread(thread1, ())
-        _thread.start_new_thread(thread2, ())
+        # Start threads
+        t1 = threading.Thread(target=thread1)
+        t2 = threading.Thread(target=thread2)
+        t1.start()
+        t2.start()
+
+        # Set up button event
         event()
+
+        # Main loop
         while True:
-            pass
+            time.sleep(0.1)
+
     except KeyboardInterrupt:
+        print("Exiting...")
+
+    finally:
+        # Stop threads gracefully
+        running = False
+        t1.join()
+        t2.join()
         GPIO.cleanup()
         print("GPIO Cleaned up")
