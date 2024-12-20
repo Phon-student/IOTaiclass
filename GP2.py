@@ -83,11 +83,17 @@ def set_led(state):
         GPIO.output(blue, 1)
 
 def button_callback(channel):
+    #read the state of the button
+    button_state = GPIO.input(button)
+    print(f"Button state: {button_state}")
+
+    #toggle the red2 LED
     if GPIO.input(red2):
         GPIO.output(red2, 0)
     else:
         GPIO.output(red2, 1)
 
+        
 if __name__ == '__main__':
     try:
         _thread.start_new_thread(thread1, ())
