@@ -101,45 +101,47 @@ def on_message(client, userdata, msg):
     else:
         set_rgb_color(0, 0, 0)  # Turn off all LEDs
 
-# MQTT Setup
-def setup_mqtt():
-    client = mqtt.Client()
-    client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)  # Add username and password if needed
-    client.on_message = on_message
-    client.connect(MQTT_BROKER, MQTT_PORT, 60)
-    client.subscribe(MQTT_TOPIC)
-    client.loop_start()  # Start the loop in a separate thread
-    print(f"Connected to MQTT broker at {MQTT_BROKER}:{MQTT_PORT}")
-    return client
+def on_connect(client, userdata, flags, rc):
+    if rc == 0:
+        print("Connected to MQTT Broker!")
+        client.subscribe(MQTT_TOPIC)
+        print(f"Subscribed to {MQTT_TOPIC} topic!")
+    else:
+        print("Failed to connect, return code %d\n", rc)
 
 # Add button press event detection
 GPIO.add_event_detect(button, GPIO.RISING, callback=button_event, bouncetime=300)
 
-# Main function
-if __name__ == "__main__":
-    try:
-        # Setup MQTT
-        mqtt_client = setup_mqtt()
+def mqtt_loop():
+    client = mqtt.Client(transport="websockets")
+    client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
+    client.on_connect = on_connect
+    client.on_message = on_message
 
+    client.connect(MQTT_BROKER, MQTT_PORT)
+    client.loop_forever()
+
+def main():
+    try:
         # Create threads
         main_thread = threading.Thread(target=main_task)
         dimming_thread = threading.Thread(target=dimming_task)
+        mqtt_thread = threading.Thread(target=mqtt_loop)
 
         # Start threads
         main_thread.start()
         dimming_thread.start()
+        mqtt_thread.start()
 
-        print("Threads started. Main and dimming tasks are running.")
-
-        # Keep the program running
+        # Join threads to the main thread
         main_thread.join()
         dimming_thread.join()
+        mqtt_thread.join()
 
     except KeyboardInterrupt:
-        print("Program interrupted by user.")
-
+        print("Exiting program")
     finally:
-        # Cleanup
-        green_pwm.stop()
         GPIO.cleanup()
-        print("GPIO cleaned up. Program terminated.")
+
+if __name__ == "__main__":
+    main()
