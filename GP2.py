@@ -74,7 +74,7 @@ def button_event(channel):
     print(f"Red2 LED {'ON' if button_pressed else 'OFF'}")
 
 # Add button press event detection
-GPIO.add_event_detect(button, GPIO.RAISING, callback=button_event, bouncetime=300)
+GPIO.add_event_detect(button, GPIO.RISING, callback=button_event, bouncetime=300)
 
 # Main function
 if __name__ == "__main__":
