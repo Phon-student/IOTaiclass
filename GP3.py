@@ -101,6 +101,13 @@ def on_message(client, userdata, msg):
     else:
         set_rgb_color(0, 0, 0)  # Turn off all LEDs
 
+    # control on/off red2 led\
+    if command == "on":
+        GPIO.output(red2, 1)
+    elif command == "off":
+        GPIO.output(red2, 0)
+        
+
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print("Connected to MQTT Broker!")
@@ -124,17 +131,17 @@ def mqtt_loop():
 def main():
     try:
         # Create threads
-        main_thread = threading.Thread(target=main_task)
+        # main_thread = threading.Thread(target=main_task)
         dimming_thread = threading.Thread(target=dimming_task)
         mqtt_thread = threading.Thread(target=mqtt_loop)
 
         # Start threads
-        main_thread.start()
+        # main_thread.start()
         dimming_thread.start()
         mqtt_thread.start()
 
         # Join threads to the main thread
-        main_thread.join()
+        # main_thread.join()
         dimming_thread.join()
         mqtt_thread.join()
 
