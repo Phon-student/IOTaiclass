@@ -5,19 +5,17 @@ import paho.mqtt.client as mqtt
 
 # Pin setup
 red = 17
-yellow = 27
+green = 27
 blue = 22
 button = 18
-green = 10
 red2 = 9
 
 # GPIO setup
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(red, GPIO.OUT)
-GPIO.setup(yellow, GPIO.OUT)
+GPIO.setup(green, GPIO.OUT)
 GPIO.setup(blue, GPIO.OUT)
 GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(green, GPIO.OUT)
 GPIO.setup(red2, GPIO.OUT)
 
 # PWM setup for Green LED
@@ -27,11 +25,11 @@ green_pwm.start(0)
 # LED color states
 color_states = [
     (1, 0, 0),  # Red
-    (0, 1, 0),  # Yellow
+    (0, 1, 0),  # Green
     (0, 0, 1),  # Blue
-    (1, 1, 0),  # Red + Yellow
+    (1, 1, 0),  # Red + Green
     (1, 0, 1),  # Red + Blue
-    (0, 1, 1),  # Yellow + Blue
+    (0, 1, 1),  # Green + Blue
     (1, 1, 1)   # All on (White)
 ]
 
@@ -46,11 +44,11 @@ MQTT_PASSWORD = "KMITL@iot1234"    # Password (if required)
 button_pressed = False
 
 # Function to set RGB LED colors
-def set_rgb_color(r, y, b):
+def set_rgb_color(r, g, b):
     GPIO.output(red, r)
-    GPIO.output(yellow, y)
+    GPIO.output(green, g)
     GPIO.output(blue, b)
-    print(f"RGB LEDs set to: Red={r}, Yellow={y}, Blue={b}")
+    print(f"RGB LEDs set to: Red={r}, Green={g}, Blue={b}")
 
 # Main task: RGB LED changes color every second
 def main_task():
@@ -84,30 +82,28 @@ def on_message(client, userdata, msg):
     command = msg.payload.decode().lower()
 
     # Control RGB LEDs
-    if command == "cyan":
+    if command == "red":
         set_rgb_color(1, 0, 0)
     elif command == "green":
         set_rgb_color(0, 1, 0)
-    elif command == "magenta":
-        set_rgb_color(0, 0, 1)
-    elif command == "yellow":
-        set_rgb_color(0, 1, 0) 
-    elif command == "off":
-        set_rgb_color(1, 1, 1)
     elif command == "blue":
-        set_rgb_color(1, 0, 1)
-    elif command == "red":
+        set_rgb_color(0, 0, 1)
+    elif command == "cyan":
         set_rgb_color(0, 1, 1)
+    elif command == "magenta":
+        set_rgb_color(1, 0, 1)
+    elif command == "yellow":
+        set_rgb_color(1, 1, 0)
     elif command == "white":
-        set_rgb_color(0, 0, 0)
+        set_rgb_color(1, 1, 1)
+    else:
+        set_rgb_color(0, 0, 0)  # Turn off all LEDs
 
-
-    # control on/off red2 led\
+    # Control Red2 LED on/off
     if command == "on":
         GPIO.output(red2, 1)
     elif command == "off":
         GPIO.output(red2, 0)
-
 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
@@ -115,7 +111,7 @@ def on_connect(client, userdata, flags, rc):
         client.subscribe(MQTT_TOPIC)
         print(f"Subscribed to {MQTT_TOPIC} topic!")
     else:
-        print("Failed to connect, return code %d\n", rc)
+        print(f"Failed to connect, return code {rc}")
 
 # Add button press event detection
 GPIO.add_event_detect(button, GPIO.RISING, callback=button_event, bouncetime=300)
@@ -132,17 +128,14 @@ def mqtt_loop():
 def main():
     try:
         # Create threads
-        # main_thread = threading.Thread(target=main_task)
         dimming_thread = threading.Thread(target=dimming_task)
         mqtt_thread = threading.Thread(target=mqtt_loop)
 
         # Start threads
-        # main_thread.start()
         dimming_thread.start()
         mqtt_thread.start()
 
         # Join threads to the main thread
-        # main_thread.join()
         dimming_thread.join()
         mqtt_thread.join()
 
