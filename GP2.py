@@ -4,7 +4,6 @@ import time
 
 # Setup GPIO
 GPIO.setmode(GPIO.BCM)
-GPIO.setwarnings(False)  # Disable warnings about already-in-use channels
 
 # Pin Definitions
 red = 17
@@ -18,7 +17,7 @@ red2 = 9
 GPIO.setup(red, GPIO.OUT)
 GPIO.setup(yellow, GPIO.OUT)
 GPIO.setup(blue, GPIO.OUT)
-GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(green, GPIO.OUT)
 GPIO.setup(red2, GPIO.OUT)
 
@@ -58,12 +57,12 @@ def event():
     try:
         # Ensure button is set up as input
         GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.add_event_detect(button, GPIO.RISING, callback=button_callback, bouncetime=200)
+        GPIO.add_event_detect(button, GPIO.RISING, callback=button_callback, bouncetime=500)
     except RuntimeError as e:
         print(f"Event setup failed: {e}. Cleaning up and retrying.")
         GPIO.cleanup(button)  # Clean up button pin
         GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.add_event_detect(button, GPIO.RISING, callback=button_callback, bouncetime=200)
+        GPIO.add_event_detect(button, GPIO.RISING, callback=button_callback, bouncetime=500)
 
 # Set LED colors based on state
 def set_led(state):
