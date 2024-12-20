@@ -82,21 +82,21 @@ def on_message(client, userdata, msg):
     command = msg.payload.decode().lower()
 
     # Control RGB LEDs
-    if command == "red":
+    if command == "cyan":
         set_rgb_color(1, 0, 0)
-    elif command == "green":
-        set_rgb_color(0, 1, 0)
-    elif command == "blue":
-        set_rgb_color(0, 0, 1)
-    elif command == "cyan":
-        set_rgb_color(0, 1, 1)
-    elif command == "magenta":
-        set_rgb_color(1, 0, 1)
     elif command == "yellow":
+        set_rgb_color(0, 1, 0)
+    elif command == "magenta":
+        set_rgb_color(0, 0, 1)
+    elif command == "green":
         set_rgb_color(1, 1, 0)
-    elif command == "white":
+    elif command == "blue":
+        set_rgb_color(1, 0, 1)
+    elif command == "red":
+        set_rgb_color(0, 1, 1)
+    elif command == "off":
         set_rgb_color(1, 1, 1)
-    else:
+    elif command == "white":
         set_rgb_color(0, 0, 0)  # Turn off all LEDs
 
     # Control Red2 LED on/off
