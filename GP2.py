@@ -79,28 +79,23 @@ def set_led(state):
         GPIO.output(red, 1)
         GPIO.output(yellow, 1)
         GPIO.output(blue, 1)
-        
+
 def button_callback(channel):
     if GPIO.input(red2):
         GPIO.output(red2, 0)
     else:
         GPIO.output(red2, 1)
 
-
-try:
-    thread1 = threading.Thread(target=thread1)
-    thread2 = threading.Thread(target=thread2)
-    event = threading.Thread(target=event)
-    print("Threads are created")
-    thread1.start()
-    thread2.start()
-    event.start()
-    print("Threads are started")
-    thread1.join()
-    thread2.join()
-    event.join()
-    print("Threads are joined")
-except KeyboardInterrupt:
-
-
-    
+if __name__ == '__main__':
+    try:
+        thread1 = threading.Thread(target=thread1)
+        thread2 = threading.Thread(target=thread2)
+        event = threading.Thread(target=event)
+        thread1.start()
+        thread2.start()
+        event.start()
+    except KeyboardInterrupt:
+        print("Keyboard Interrupt")
+    finally:
+        GPIO.cleanup()
+        print("GPIO Cleaned Up")
