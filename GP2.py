@@ -2,13 +2,9 @@ import RPi.GPIO as GPIO
 import _thread
 import time
 
-# Two parallel threads and 1 event:
-# Main task: RGB LED changes every 1 second.
-# Event task: Button press, toggles a red2 LED on/off.
-# Sub-thread: Green LED dims in cycles (10 -> 20 -> 100 -> 10 -> 20 every 2 seconds).
-
 # Setup GPIO
 GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)  # Disable warnings about already-in-use channels
 
 # Pin Definitions
 red = 17
@@ -59,7 +55,12 @@ def thread2():
 
 # Event: Button press toggles red2 LED on/off
 def event():
-    GPIO.add_event_detect(button, GPIO.RISING, callback=button_callback, bouncetime=200)
+    try:
+        GPIO.add_event_detect(button, GPIO.RISING, callback=button_callback, bouncetime=200)
+    except RuntimeError:
+        print("Event already detected on this channel. Cleaning up and retrying.")
+        GPIO.cleanup(button)  # Clean up button pin
+        GPIO.add_event_detect(button, GPIO.RISING, callback=button_callback, bouncetime=200)
 
 # Set LED colors based on state
 def set_led(state):
@@ -86,7 +87,7 @@ if __name__ == '__main__':
         event()
         # Keep the main thread running
         while True:
-            pass
+            time.sleep(0.1)
     except KeyboardInterrupt:
         GPIO.cleanup()
         print("GPIO cleaned up")
