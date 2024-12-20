@@ -20,7 +20,7 @@ GPIO.setup(green, GPIO.OUT)
 GPIO.setup(red2, GPIO.OUT)
 
 # PWM setup for Green LED
-green_pwm = GPIO.PWM(green, 100)  # 100 Hz PWM frequency
+green_pwm = GPIO.PWM(green, 500)  # 500 Hz PWM frequency
 green_pwm.start(0)  # Start with 0% duty cycle
 
 # LED color states (Main Task)
@@ -59,11 +59,11 @@ def dimming_task():
         for duty in range(10, 101, 10):  # Increase brightness
             green_pwm.ChangeDutyCycle(duty)
             print(f"Green LED dimming: Brightness={duty}%")
-            time.sleep(0.2)
+            time.sleep(2)
         for duty in range(100, 9, -10):  # Decrease brightness
             green_pwm.ChangeDutyCycle(duty)
             print(f"Green LED dimming: Brightness={duty}%")
-            time.sleep(0.2)
+            time.sleep(2)
 
 # Event task: Toggle Red2 LED on button press
 def button_event(channel):
