@@ -1,4 +1,6 @@
 import RPi.GPIO as GPIO
+import _thread
+import time
 
 #two paralle threads and 1 events
 #main task : RGBLE change every 1 second
@@ -88,14 +90,11 @@ def button_callback(channel):
 
 if __name__ == '__main__':
     try:
-        thread1 = threading.Thread(target=thread1)
-        thread2 = threading.Thread(target=thread2)
-        event = threading.Thread(target=event)
-        thread1.start()
-        thread2.start()
-        event.start()
+        _thread.start_new_thread(thread1, ())
+        _thread.start_new_thread(thread2, ())
+        event()
+        while True:
+            pass
     except KeyboardInterrupt:
-        print("Keyboard Interrupt")
-    finally:
         GPIO.cleanup()
-        print("GPIO Cleaned Up")
+        print("GPIO Cleaned up")
