@@ -40,7 +40,7 @@ MQTT_BROKER = "iot.kmitlnext.com"  # Replace with your broker address
 MQTT_PORT = 9001                   # Port number
 MQTT_TOPIC = "led/control"         # Topic for LED control
 MQTT_USERNAME = "kmitliot"         # Username (if required)
-MQTT_PASSWORD = ""                 # Password (if required)
+MQTT_PASSWORD = "KMITL@iot1234"    # Password (if required)
 
 # Global variable for button state
 button_pressed = False
