@@ -20,7 +20,7 @@ GPIO.setup(green, GPIO.OUT)
 GPIO.setup(red2, GPIO.OUT)
 
 # PWM setup for Green LED
-green_pwm = GPIO.PWM(green, 100)  # 500 Hz PWM frequency
+green_pwm = GPIO.PWM(green, 500)  # 500 Hz PWM frequency
 green_pwm.start(0)  # Start with 0% duty cycle
 
 # LED color states (Main Task)
