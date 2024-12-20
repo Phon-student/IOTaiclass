@@ -83,30 +83,31 @@ def on_message(client, userdata, msg):
     print(f"Message received: {msg.payload.decode()}")
     command = msg.payload.decode().lower()
 
-    # Control LEDs based on the message
+    # Control RGB LEDs
     if command == "red":
         set_rgb_color(1, 0, 0)
-    elif command == "green":
+    elif command == "yellow":
         set_rgb_color(0, 1, 0)
     elif command == "blue":
         set_rgb_color(0, 0, 1)
-    elif command == "cyan":
-        set_rgb_color(0, 1, 1)
-    elif command == "magenta":
-        set_rgb_color(1, 0, 1)
-    elif command == "yellow":
-        set_rgb_color(1, 1, 0)
+    elif command == "green":
+        set_rgb_color(0, 1, 0) 
     elif command == "white":
         set_rgb_color(1, 1, 1)
-    else:
-        set_rgb_color(0, 0, 0)  # Turn off all LEDs
+    elif command == "magenta":
+        set_rgb_color(1, 0, 1)
+    elif command == "cyan":
+        set_rgb_color(0, 1, 1)
+    elif command == "off":
+        set_rgb_color(0, 0, 0)
+
 
     # control on/off red2 led\
     if command == "on":
         GPIO.output(red2, 1)
     elif command == "off":
         GPIO.output(red2, 0)
-        
+
 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
