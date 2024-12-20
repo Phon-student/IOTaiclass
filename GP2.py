@@ -64,6 +64,7 @@ def dimming_task():
 def button_event(channel):
     global button_pressed
     button_pressed = not button_pressed
+    print(f"Button {'pressed' if button_pressed else 'released'}")
     GPIO.output(red2, button_pressed)
     print(f"Red2 LED {'ON' if button_pressed else 'OFF'}")
 
@@ -84,6 +85,11 @@ if __name__ == "__main__":
         # Keep the program running
         main_thread.join()
         dimming_thread.join()
+
+        #print debugging message
+        print("Threads started.")
+
+
 
     except KeyboardInterrupt:
         print("Program interrupted by user.")
