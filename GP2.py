@@ -1,5 +1,5 @@
 import RPi.GPIO as GPIO
-import _thread
+import threading
 import time
 
 # Setup GPIO
@@ -79,17 +79,25 @@ def button_callback(channel):
     GPIO.output(red2, not current_state)
     print(f"Red2 LED toggled to {'ON' if not current_state else 'OFF'}")
 
+
 # Main program
-if __name__ == '__main__':
-    try:
-        # Start threads using _thread
-        _thread.start_new_thread(thread1, ())
-        _thread.start_new_thread(thread2, ())
-        # Start event detection
-        event()
-        # Keep the main thread running
-        while True:
-            time.sleep(0.1)
-    except KeyboardInterrupt:
-        GPIO.cleanup()
-        print("GPIO cleaned up")
+try:
+    # Create and start threads
+    t1 = threading.Thread(target=thread1)
+    t2 = threading.Thread(target=thread2)
+    t1.start()
+    t2.start()
+
+    # Set up event
+    event()
+
+    # Wait for threads to finish
+    t1.join()
+    t2.join()
+
+except KeyboardInterrupt:
+    print("Keyboard Interrupt")
+
+finally:
+    GPIO.cleanup()
+    print("GPIO Cleaned up")
