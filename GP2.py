@@ -56,10 +56,13 @@ def thread2():
 # Event: Button press toggles red2 LED on/off
 def event():
     try:
+        # Ensure button is set up as input
+        GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.add_event_detect(button, GPIO.RISING, callback=button_callback, bouncetime=200)
-    except RuntimeError:
-        print("Event already detected on this channel. Cleaning up and retrying.")
+    except RuntimeError as e:
+        print(f"Event setup failed: {e}. Cleaning up and retrying.")
         GPIO.cleanup(button)  # Clean up button pin
+        GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.add_event_detect(button, GPIO.RISING, callback=button_callback, bouncetime=200)
 
 # Set LED colors based on state
