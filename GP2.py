@@ -47,6 +47,10 @@ def event(): #button press, LED on/off of red2 LED
     GPIO.add_event_detect(button, GPIO.RISING, callback=button_callback, bouncetime=200)
 
 def set_led(state):
+    if state == 0:
+        GPIO.output(red, 0)
+        GPIO.output(yellow, 0)
+        GPIO.output(blue, 0)
     elif state == 1:
         GPIO.output(red, 1)
         GPIO.output(yellow, 0)
@@ -75,7 +79,7 @@ def set_led(state):
         GPIO.output(red, 1)
         GPIO.output(yellow, 1)
         GPIO.output(blue, 1)
-
+        
 def button_callback(channel):
     if GPIO.input(red2):
         GPIO.output(red2, 0)
@@ -97,6 +101,6 @@ try:
     event.join()
     print("Threads are joined")
 except KeyboardInterrupt:
-    
+
 
     
