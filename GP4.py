@@ -47,12 +47,12 @@ def lab_2_ldr():
     while True:
         adc_value = read_spi(ch_ldr)
         voltage = calculate_voltage(adc_value)
-        if voltage > 1.5:  # Example threshold for light
-            GPIO.output(GREEN_LED, GPIO.LOW)  # LED off
-            print(f"[Lab 2] Room is bright (Voltage: {voltage:.2f} V). LED off.")
+        if voltage > 2:
+            GPIO.output(GREEN_LED, 1)
+            print(f"[Lab 2] LDR Voltage: {voltage:.2f} V | Green LED ON")
         else:
-            GPIO.output(GREEN_LED, GPIO.HIGH)  # LED on
-            print(f"[Lab 2] Room is dark (Voltage: {voltage:.2f} V). LED on.")
+            GPIO.output(GREEN_LED, 0)
+            print(f"[Lab 2] LDR Voltage: {voltage:.2f} V | Green LED OFF")
         time.sleep(2)
 
 def lab_3_potentiometer():
