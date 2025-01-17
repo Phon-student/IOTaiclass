@@ -30,7 +30,7 @@ def calculate_voltage(adc_value, v_ref=3.3, resolution=1024):
     return (adc_value / resolution) * v_ref
 
 def calculate_current(voltage, resistance):
-    return voltage / resistance if resistance != 0 else 0
+    return voltage / resistance
 
 # ---Thread Functions---#
 def lab_1_r2():
