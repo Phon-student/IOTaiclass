@@ -3,13 +3,17 @@ import time
 import threading
 import RPi.GPIO as GPIO
 import paho.mqtt.client as mqtt
+import logging
+
+# ---Logging Setup---#
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # ---MQTT Setup---#
 MQTT_BROKER = "iot.kmitlnext.com"
 MQTT_PORT = 9001
-MQTT_TOPIC_R2 = "phon/test"
-MQTT_TOPIC_LDR = "phon/ldr"
-MQTT_TOPIC_DIM = "phon/dim"
+MQTT_TOPIC_R2 = "yourname/test"
+MQTT_TOPIC_LDR = "yourname/ldr"
+MQTT_TOPIC_DIM = "yourname/dim"
 MQTT_TOPIC_CONTROL = "led/control"
 MQTT_USERNAME = "kmitliot"
 MQTT_PASSWORD = "KMITL@iot1234"
@@ -48,31 +52,30 @@ def calculate_voltage(adc_value, v_ref=3.3, resolution=1024):
 
 # ---MQTT Handlers---#
 def on_connect(client, userdata, flags, rc):
-    print(f"Connected with result code {rc}")
+    logging.debug(f"Connected to MQTT broker with result code {rc}")
     client.subscribe(MQTT_TOPIC_CONTROL)
 
 def on_message(client, userdata, msg):
     try:
-        # Decode the message and act accordingly
         message = msg.payload.decode()
-        print(f"Message received on {msg.topic}: {message}")
+        logging.debug(f"Received message on {msg.topic}: {message}")
 
         if msg.topic == MQTT_TOPIC_CONTROL:
             if message.lower() == "green_on":
                 GPIO.output(GREEN_LED, 1)
-                print("Green LED turned ON via MQTT")
+                logging.debug("Green LED turned ON via MQTT")
             elif message.lower() == "green_off":
                 GPIO.output(GREEN_LED, 0)
-                print("Green LED turned OFF via MQTT")
+                logging.debug("Green LED turned OFF via MQTT")
             elif message.startswith("dim:"):
                 try:
                     brightness = float(message.split(":")[1])
                     pwm.ChangeDutyCycle(brightness)
-                    print(f"Red LED brightness set to {brightness}% via MQTT")
+                    logging.debug(f"Red LED brightness set to {brightness}% via MQTT")
                 except ValueError:
-                    print("Invalid brightness value")
+                    logging.error("Invalid brightness value received in MQTT message")
     except Exception as e:
-        print(f"Error processing message: {e}")
+        logging.error(f"Error processing MQTT message: {e}")
 
 def mqtt_loop():
     client.on_connect = on_connect
@@ -91,7 +94,10 @@ def lab_1_r2():
             continue
         resistance = (voltage * 1000) / (3.3 - voltage)
 
+        logging.debug(f"Resistance calculation: Voltage = {voltage:.2f} V | Resistance = {resistance:.2f} Ohm")
+
         if previous_r2 is None or abs(resistance - previous_r2) > 1000:
+            logging.debug(f"Resistance change detected: {resistance:.2f} Ohm")
             # Publish new resistance value when it changes by more than 1kΩ
             client.publish(MQTT_TOPIC_R2, f"Resistance: {resistance:.2f} Ohm")
             previous_r2 = resistance
@@ -109,6 +115,7 @@ def lab_2_ldr():
 
         if previous_green_led is None or previous_green_led != led_status:
             status = "ON" if led_status else "OFF"
+            logging.debug(f"Green LED status changed to {status}")
             # Publish the LED status change (ON/OFF)
             client.publish(MQTT_TOPIC_LDR, f"Green LED: {status}")
             previous_green_led = led_status
@@ -124,7 +131,10 @@ def lab_3_potentiometer():
         duty_cycle = (adc_value / 1023) * 100
         pwm.ChangeDutyCycle(duty_cycle)
 
+        logging.debug(f"Potentiometer: Voltage = {voltage:.2f} V | Duty Cycle = {duty_cycle:.2f}%")
+
         if previous_duty_cycle is None or abs(duty_cycle - previous_duty_cycle) > 1:
+            logging.debug(f"Red LED brightness change detected: {duty_cycle:.2f}%")
             # Publish new brightness value when it changes by more than 1%
             client.publish(MQTT_TOPIC_DIM, f"Red LED Brightness: {duty_cycle:.2f}%")
             previous_duty_cycle = duty_cycle
@@ -156,4 +166,4 @@ if __name__ == '__main__':
         pwm.stop()
         GPIO.cleanup()
         client.disconnect()
-        print("\nSPI closed, MQTT disconnected, and GPIO cleaned up. Exiting...")
+        logging.info("SPI closed, MQTT disconnected, and GPIO cleaned up. Exiting...")
