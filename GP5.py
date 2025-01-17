@@ -10,7 +10,7 @@ MQTT_PORT = 9001
 MQTT_TOPIC_R2 = "phon/test"
 MQTT_TOPIC_LDR = "phon/ldr"
 MQTT_TOPIC_DIM = "phon/dim"
-MQTT_TOPIC_CONTROL = "phon/control"
+MQTT_TOPIC_CONTROL = "led/control"
 MQTT_USERNAME = "kmitliot"
 MQTT_PASSWORD = "KMITL@iot1234"
 
@@ -92,6 +92,7 @@ def lab_1_r2():
         resistance = (voltage * 1000) / (3.3 - voltage)
 
         if previous_r2 is None or abs(resistance - previous_r2) > 1000:
+            # Publish new resistance value when it changes by more than 1kΩ
             client.publish(MQTT_TOPIC_R2, f"Resistance: {resistance:.2f} Ohm")
             previous_r2 = resistance
 
@@ -108,6 +109,7 @@ def lab_2_ldr():
 
         if previous_green_led is None or previous_green_led != led_status:
             status = "ON" if led_status else "OFF"
+            # Publish the LED status change (ON/OFF)
             client.publish(MQTT_TOPIC_LDR, f"Green LED: {status}")
             previous_green_led = led_status
 
@@ -123,6 +125,7 @@ def lab_3_potentiometer():
         pwm.ChangeDutyCycle(duty_cycle)
 
         if previous_duty_cycle is None or abs(duty_cycle - previous_duty_cycle) > 1:
+            # Publish new brightness value when it changes by more than 1%
             client.publish(MQTT_TOPIC_DIM, f"Red LED Brightness: {duty_cycle:.2f}%")
             previous_duty_cycle = duty_cycle
 
