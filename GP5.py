@@ -84,24 +84,28 @@ def mqtt_loop():
     client.loop_forever()
 
 # ---Thread Functions---#
+
+# In the lab_1_r2 function
 def lab_1_r2():
     global previous_r2
     ch = 0
     while True:
         adc_value = read_spi(ch)
         voltage = calculate_voltage(adc_value)
-        if voltage >= 3.3:
-            continue
-        resistance = (voltage * 1000) / (3.3 - voltage)
-
-        logging.debug(f"Resistance calculation: Voltage = {voltage:.2f} V | Resistance = {resistance:.2f} Ohm")
-
+        resistance = (voltage * 1000) / (3.3 - voltage)  # R2 = (Vout * R1) / (Vin - Vout)
+        current = voltage / resistance
+        
+        # Log the details
+        logging.debug(f"Voltage: {voltage:.2f} V | Resistance: {resistance:.2f} Ohm | Current: {current} mA")
+        
+        # Check if the resistance has changed by more than 1kΩ or if it is the first reading
         if previous_r2 is None or abs(resistance - previous_r2) > 1000:
             logging.debug(f"Resistance change detected: {resistance:.2f} Ohm")
             # Publish new resistance value when it changes by more than 1kΩ
             client.publish(MQTT_TOPIC_R2, f"Resistance: {resistance:.2f} Ohm")
             previous_r2 = resistance
-
+        
+        # Sleep before next reading
         time.sleep(2)
 
 def lab_2_ldr():
