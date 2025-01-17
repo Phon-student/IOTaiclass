@@ -48,7 +48,7 @@ def read_spi(channel):
     return ((raw[1] & 3) << 8) | raw[2]
 
 def calculate_voltage(adc_value, v_ref=3.3, resolution=1024):
-    return (adc_value / resolution) * v_ref
+    return (adc_value * v_ref) / resolution
 
 # ---MQTT Handlers---#
 def on_connect(client, userdata, flags, rc):
