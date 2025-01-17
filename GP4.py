@@ -63,7 +63,7 @@ def lab_3_potentiometer():
         duty_cycle = (adc_value / 1023) * 100  # Scale to 0-100%
         pwm.ChangeDutyCycle(duty_cycle)
         print(f"[Lab 3] Potentiometer Voltage: {voltage:.2f} V | Duty Cycle: {duty_cycle:.2f}%")
-        time.sleep(2)
+        time.sleep(1)
 
 # ---Main Function---#
 if __name__ == '__main__':
