@@ -11,9 +11,9 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 # ---MQTT Setup---#
 MQTT_BROKER = "iot.kmitlnext.com"
 MQTT_PORT = 9001
-MQTT_TOPIC_R2 = "yourname/test"
-MQTT_TOPIC_LDR = "yourname/ldr"
-MQTT_TOPIC_DIM = "yourname/dim"
+MQTT_TOPIC_R2 = "phon/test"
+MQTT_TOPIC_LDR = "phon/ldr"
+MQTT_TOPIC_DIM = "phon/dim"
 MQTT_TOPIC_CONTROL = "led/control"
 MQTT_USERNAME = "kmitliot"
 MQTT_PASSWORD = "KMITL@iot1234"
