@@ -94,7 +94,7 @@ def lab_1_r2():
             continue
         resistance = (voltage * 1000) / (3.3 - voltage)
 
-        logging.debug(f"Resistance calculation: Voltage = {voltage:.2f} V | Resistance = {resistance:.2f} Ohm")
+        logging.debug(f"{resistance:.2f} Ohm")
 
         if previous_r2 is None or abs(resistance - previous_r2) > 1000:
             logging.debug(f"Resistance change detected: {resistance:.2f} Ohm")
@@ -117,7 +117,7 @@ def lab_2_ldr():
             status = "ON" if led_status else "OFF"
             logging.debug(f"Green LED status changed to {status}")
             # Publish the LED status change (ON/OFF)
-            client.publish(MQTT_TOPIC_LDR, f"Green LED: {status}")
+            client.publish(MQTT_TOPIC_LDR, f"{status}")
             previous_green_led = led_status
 
         time.sleep(2)
@@ -131,7 +131,7 @@ def lab_3_potentiometer():
         duty_cycle = (adc_value / 1023) * 100
         pwm.ChangeDutyCycle(duty_cycle)
 
-        logging.debug(f"Potentiometer: Voltage = {voltage:.2f} V | Duty Cycle = {duty_cycle:.2f}%")
+        logging.debug(f"{duty_cycle:.2f}")
 
         if previous_duty_cycle is None or abs(duty_cycle - previous_duty_cycle) > 1:
             logging.debug(f"Red LED brightness change detected: {duty_cycle:.2f}%")
