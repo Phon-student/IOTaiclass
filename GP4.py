@@ -25,12 +25,10 @@ def read_spi(channel):
     data = ((raw[1] & 3) << 8) | raw[2]
     return data
 
-# ---Voltage and Current Calculation---#
+# ---Voltage Calculation---#
 def calculate_voltage(adc_value, v_ref=3.3, resolution=1024):
     return (adc_value / resolution) * v_ref
 
-def calculate_current(voltage, resistance):
-    return voltage / resistance
 
 # ---Thread Functions---#
 def lab_1_r2():
@@ -39,9 +37,9 @@ def lab_1_r2():
         adc_value = read_spi(ch)
         voltage = calculate_voltage(adc_value)
         resistance = (voltage * 1000) / (3.3 - voltage)  # R2 = (Vout * R1) / (Vin - Vout)
-        current = calculate_current(voltage, resistance)
+        current =voltage / resistance
         print(f"[Lab 1] Voltage: {voltage:.2f} V | Resistance: {resistance:.2f} Ohm | Current: {current:.2f} mA")
-        time.sleep(1)
+        time.sleep(2)
     
 
 def lab_2_ldr():
@@ -65,7 +63,7 @@ def lab_3_potentiometer():
         duty_cycle = (adc_value / 1023) * 100  # Scale to 0-100%
         pwm.ChangeDutyCycle(duty_cycle)
         print(f"[Lab 3] Potentiometer Voltage: {voltage:.2f} V | Duty Cycle: {duty_cycle:.2f}%")
-        time.sleep(1)
+        time.sleep(2)
 
 # ---Main Function---#
 if __name__ == '__main__':
