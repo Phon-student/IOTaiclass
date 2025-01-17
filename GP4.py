@@ -34,16 +34,15 @@ def calculate_current(voltage, resistance):
 
 # ---Thread Functions---#
 def lab_1_r2():
-    resistances = [10000, 5000, 20000]  # R2 = 10k, 10k//10k, 10k+10k
     ch = 0
     while True:
-        for r2 in resistances:
-            adc_value = read_spi(ch)
-            voltage = calculate_voltage(adc_value)
-            current = calculate_current(voltage, r2)
-            calculated_r2 = voltage / current if current != 0 else float('inf')
-            print(f"[Lab 1] R2: {r2} ohm | Voltage: {voltage:.2f} V | Current: {current:.2e} A | Measured R2: {calculated_r2:.2f} ohm")
-            time.sleep(2)
+        adc_value = read_spi(ch)
+        voltage = calculate_voltage(adc_value)
+        resistance = (voltage * 1000) / (3.3 - voltage)  # R2 = (Vout * R1) / (Vin - Vout)
+        current = calculate_current(voltage, resistance)
+        print(f"[Lab 1] Voltage: {voltage:.2f} V | Resistance: {resistance:.2f} Ohm | Current: {current:.2f} mA")
+        time.sleep(1)
+    
 
 def lab_2_ldr():
     ch_ldr = 1
