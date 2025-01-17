@@ -37,8 +37,8 @@ def lab_1_r2():
         adc_value = read_spi(ch)
         voltage = calculate_voltage(adc_value)
         resistance = (voltage * 1000) / (3.3 - voltage)  # R2 = (Vout * R1) / (Vin - Vout)
-        current =voltage / resistance
-        print(f"[Lab 1] Voltage: {voltage:.2f} V | Resistance: {resistance:.2f} Ohm | Current: {current:.2f} mA")
+        current = voltage / resistance
+        print(f"[Lab 1] Voltage: {voltage:.2f} V | Resistance: {resistance:.2f} Ohm | Current: {current} mA")
         time.sleep(2)
     
 
