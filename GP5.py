@@ -98,6 +98,9 @@ def lab_1_r2():
         # Log the details
         logging.debug(f"Voltage: {voltage:.2f} V | Resistance: {resistance:.2f} Ohm | Current: {current} mA")
         
+        client.publish(MQTT_TOPIC_R2, f"Resistance: {resistance:.2f} Ohm")
+        
+        previous_r2 = resistance
         # Check if the resistance has changed by more than 1kΩ or if it is the first reading
         if previous_r2 is None or abs(resistance - previous_r2) > 1000:
             logging.debug(f"Resistance change detected: {resistance:.2f} Ohm")
