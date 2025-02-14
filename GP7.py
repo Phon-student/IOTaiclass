@@ -13,7 +13,6 @@ red_pwm_pin = 18  # Red LED for dimming
 def on_message(client, _userdata, message):
     topic = message.topic
     payload = message.payload.decode()
-    print(f"Message received: {topic} - {payload}")
     
     if topic == "TanakornHome/Green":
         if payload == "on":
