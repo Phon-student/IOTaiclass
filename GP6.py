@@ -8,10 +8,10 @@ def on_message(client, _userdata, message):
     print(f"Message received: {message.payload.decode()} + \n")
     if (message.payload.decode() == "0"):
         client.publish("TanakornHome/LampSta" , "0")
-        GPIO.output(4, False)
+        GPIO.output(17, False)
     else:
         client.publish("TanakornHome/LampSta" , "1")
-        GPIO.output(4, True)
+        GPIO.output(17, True)
 
 def on_connect(_client, _userdata, _flags, rc):
     if rc == 0:
@@ -22,7 +22,7 @@ def on_connect(_client, _userdata, _flags, rc):
 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(4, GPIO.OUT)
+GPIO.setup(17, GPIO.OUT)
 
 client = mqtt.Client(transport="websockets")
 client.username_pw_set(username="kmitliot", password="KMITL@iot1234")
