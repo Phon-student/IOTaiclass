@@ -13,9 +13,10 @@ red_pwm_pin = 18  # Red LED for dimming
 def on_message(client, _userdata, message):
     topic = message.topic
     payload = message.payload.decode()
-    
+    print(f"Message received: {topic} - {payload}")
+
     if topic == "TanakornHome/Green":
-        if payload == 1:
+        if payload == "1":
             GPIO.output(green_pin, True)
             print("Green On")
         else:
@@ -23,7 +24,7 @@ def on_message(client, _userdata, message):
             print("Green Off")
     
     elif topic == "TanakornHome/Blue":
-        if payload == 1:
+        if payload == "1":
             GPIO.output(blue_pin, True)
             print("Blue On")
         else:
@@ -31,7 +32,7 @@ def on_message(client, _userdata, message):
             print("Blue Off")
     
     elif topic == "TanakornHome/Red":
-        if payload == 1:
+        if payload == "1":
             GPIO.output(red_pin, True)
             print("Red On")
         else:
