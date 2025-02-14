@@ -1,90 +1,84 @@
 import paho.mqtt.client as mqtt
 import RPi.GPIO as GPIO
 
-# MQTT Configuration
-BROKER = "iot.kmitlnext.com"
-PORT = 9001
-USERNAME = "kmitliot"
-PASSWORD = "KMITL@iot1234"
+# MQTT Broker Information
+broker = "iot.kmitlnext.com"
+port = 9001
 
-# MQTT Topics
-TOPIC_LAMP = "TanakornHome/LampCmd"
-TOPIC_LAMP_STATUS = "TanakornHome/LampSta"
-TOPIC_RED = "TanakornHome/RGB/Red"
-TOPIC_GREEN = "TanakornHome/RGB/Green"
-TOPIC_BLUE = "TanakornHome/RGB/Blue"
-TOPIC_RED_BRIGHTNESS = "TanakornHome/RGB/RedBrightness"
-
-# GPIO Setup
-GPIO.setwarnings(False)
-GPIO.setmode(GPIO.BCM)
-
-LAMP_PIN = 4
-RED_PIN = 17
-GREEN_PIN = 27
-BLUE_PIN = 22
-
-GPIO.setup(LAMP_PIN, GPIO.OUT)
-GPIO.setup(RED_PIN, GPIO.OUT)
-GPIO.setup(GREEN_PIN, GPIO.OUT)
-GPIO.setup(BLUE_PIN, GPIO.OUT)
-
-# PWM for Red LED Brightness
-red_pwm = GPIO.PWM(RED_PIN, 1000)  # 1 kHz frequency
-red_pwm.start(0)  # Start with 0% duty cycle
-
-# Callback Functions
-def on_connect(client, _userdata, _flags, rc):
-    if rc == 0:
-        print("Connected to broker")
-        client.subscribe([(TOPIC_LAMP, 0), (TOPIC_RED, 0), (TOPIC_GREEN, 0), (TOPIC_BLUE, 0), (TOPIC_RED_BRIGHTNESS, 0)])
-    else:
-        print("Error, Connection failed")
+green_pin = 17
+blue_pin = 27
+red_pin = 22  # Red LED for on/off
+red_pwm_pin = 18  # Red LED for dimming
 
 def on_message(client, _userdata, message):
     topic = message.topic
     payload = message.payload.decode()
-    print(f"Message received: {topic} -> {payload}")
-
-    if topic == TOPIC_LAMP:
-        state = payload == "1"
-        GPIO.output(LAMP_PIN, state)
-        client.publish(TOPIC_LAMP_STATUS, "1" if state else "0")
-
-    elif topic == TOPIC_RED:
-        GPIO.output(RED_PIN, payload == "1")
-
-    elif topic == TOPIC_GREEN:
-        GPIO.output(GREEN_PIN, payload == "1")
-
-    elif topic == TOPIC_BLUE:
-        GPIO.output(BLUE_PIN, payload == "1")
-
-    elif topic == TOPIC_RED_BRIGHTNESS:
+    print(f"Message received: {topic} - {payload}")
+    
+    if topic == "TanakornHome/Green":
+        if payload == "on":
+            GPIO.output(green_pin, True)
+            print("Green On")
+        else:
+            GPIO.output(green_pin, False)
+            print("Green Off")
+    
+    elif topic == "TanakornHome/Blue":
+        if payload == "on":
+            GPIO.output(blue_pin, True)
+            print("Blue On")
+        else:
+            GPIO.output(blue_pin, False)
+            print("Blue Off")
+    
+    elif topic == "TanakornHome/Red":
+        if payload == "on":
+            GPIO.output(red_pin, True)
+            print("Red On")
+        else:
+            GPIO.output(red_pin, False)
+            print("Red Off")
+    
+    elif topic == "TanakornHome/RedDim":
         try:
-            brightness = int(payload)
-            brightness = max(0, min(100, brightness))  # Clamp value between 0-100
-            red_pwm.ChangeDutyCycle(brightness)
-            print(f"Red LED Brightness: {brightness}%")
+            dim_value = int(payload)  # Convert to integer
+            if 0 <= dim_value <= 100:
+                pwm_red.ChangeDutyCycle(dim_value)  # Adjust brightness
+                print(f"LED Dim {dim_value}%")
         except ValueError:
-            print("Invalid brightness value")
+            print("Invalid brightness value received.")
 
-def on_disconnect(client, _userdata, rc):
-    print("Disconnected from broker.")
+def on_connect(client, _userdata, _flags, rc):
+    if rc == 0:
+        print("Connected to broker")
+        client.subscribe("TanakornHome/Green")
+        client.subscribe("TanakornHome/Blue")
+        client.subscribe("TanakornHome/Red")
+        client.subscribe("TanakornHome/RedDim")
+    else:
+        print("Error, Connection failed")
 
-# MQTT Client Setup
+# GPIO Setup
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(green_pin, GPIO.OUT)
+GPIO.setup(blue_pin, GPIO.OUT)
+GPIO.setup(red_pin, GPIO.OUT)
+GPIO.setup(red_pwm_pin, GPIO.OUT)
+pwm_red = GPIO.PWM(red_pwm_pin, 1000)  # PWM frequency
+pwm_red.start(0)  # Start with 0% duty cycle
+
+# MQTT Setup
 client = mqtt.Client(transport="websockets")
-client.username_pw_set(USERNAME, PASSWORD)
+client.username_pw_set(username="kmitliot", password="KMITL@iot1234")
 client.on_connect = on_connect
 client.on_message = on_message
-client.on_disconnect = on_disconnect
 
-client.connect(BROKER, PORT)
-
-# Start Loop
+client.connect(broker, port)
 try:
     client.loop_forever()
 except KeyboardInterrupt:
+    pwm_red.stop()
     GPIO.cleanup()
     client.disconnect()
     print("Exit")
