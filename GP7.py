@@ -12,7 +12,9 @@ red_pwm_pin = 18  # Red LED for dimming
 
 def update_led_status():
     """Turn off all LEDs if none are active."""
-    if not GPIO.input(green_pin) and not GPIO.input(blue_pin) and not GPIO.input(red_pin):
+    if GPIO.input(green_pin) or GPIO.input(blue_pin) or GPIO.input(red_pin):
+        print("At least one LED is on")
+    else:
         pwm_red.ChangeDutyCycle(0)
         GPIO.output(red_pin, False)
         print("All LEDs Off")
@@ -23,28 +25,16 @@ def on_message(client, _userdata, message):
     print(f"Message received: {topic} - {payload}")
     
     if topic == "TanakornHome/Green":
-        if payload == "1":
-            GPIO.output(green_pin, True)
-            print("Green On")
-        else:
-            GPIO.output(green_pin, False)
-            print("Green Off")
+        GPIO.output(green_pin, payload == "1")
+        print(f"Green {'On' if payload == '1' else 'Off'}")
     
     elif topic == "TanakornHome/Blue":
-        if payload == "1":
-            GPIO.output(blue_pin, True)
-            print("Blue On")
-        else:
-            GPIO.output(blue_pin, False)
-            print("Blue Off")
+        GPIO.output(blue_pin, payload == "1")
+        print(f"Blue {'On' if payload == '1' else 'Off'}")
     
     elif topic == "TanakornHome/Red":
-        if payload == "1":
-            GPIO.output(red_pin, True)
-            print("Red On")
-        else:
-            GPIO.output(red_pin, False)
-            print("Red Off")
+        GPIO.output(red_pin, payload == "1")
+        print(f"Red {'On' if payload == '1' else 'Off'}")
     
     elif topic == "TanakornHome/RedDim":
         try:
