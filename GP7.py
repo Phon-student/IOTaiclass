@@ -10,11 +10,18 @@ blue_pin = 27
 red_pin = 22  # Red LED for on/off
 red_pwm_pin = 18  # Red LED for dimming
 
+def update_led_status():
+    """Turn off all LEDs if none are active."""
+    if not GPIO.input(green_pin) and not GPIO.input(blue_pin) and not GPIO.input(red_pin):
+        pwm_red.ChangeDutyCycle(0)
+        GPIO.output(red_pin, False)
+        print("All LEDs Off")
+
 def on_message(client, _userdata, message):
     topic = message.topic
     payload = message.payload.decode()
     print(f"Message received: {topic} - {payload}")
-
+    
     if topic == "TanakornHome/Green":
         if payload == "1":
             GPIO.output(green_pin, True)
@@ -47,6 +54,8 @@ def on_message(client, _userdata, message):
                 print(f"LED Dim {dim_value}%")
         except ValueError:
             print("Invalid brightness value received.")
+    
+    update_led_status()
 
 def on_connect(client, _userdata, _flags, rc):
     if rc == 0:
