@@ -12,5 +12,5 @@ def convert_to_pdf_fpdf(input_file, output_pdf):
     pdf.output(output_pdf)
 
 # Example usage:
-convert_to_pdf_fpdf('GP3.py', 'lab3.pdf')
+convert_to_pdf_fpdf('GP5.py', 'lab4.pdf')
 print("PDF is Saved Successfully")
