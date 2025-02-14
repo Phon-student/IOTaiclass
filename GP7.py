@@ -15,7 +15,7 @@ def on_message(client, _userdata, message):
     payload = message.payload.decode()
     
     if topic == "TanakornHome/Green":
-        if payload == "on":
+        if payload == 1:
             GPIO.output(green_pin, True)
             print("Green On")
         else:
@@ -23,7 +23,7 @@ def on_message(client, _userdata, message):
             print("Green Off")
     
     elif topic == "TanakornHome/Blue":
-        if payload == "on":
+        if payload == 1:
             GPIO.output(blue_pin, True)
             print("Blue On")
         else:
@@ -31,7 +31,7 @@ def on_message(client, _userdata, message):
             print("Blue Off")
     
     elif topic == "TanakornHome/Red":
-        if payload == "on":
+        if payload == 1:
             GPIO.output(red_pin, True)
             print("Red On")
         else:
