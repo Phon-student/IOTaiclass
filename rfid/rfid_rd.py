@@ -34,7 +34,7 @@ while continue_reading:
 
     if status == MIFAREReader.MI_OK:
 
-        print("Card read UID: %s,%s,%s,%s" % (uid[0], uid[1], uid[2], uid[3]))
+        print("Card read UID: ", uid[0],":", uid[1],":", uid[2],":", uid[3])
 
         key = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
 
@@ -43,13 +43,12 @@ while continue_reading:
         status = MIFAREReader.MFRC522_Auth(MIFAREReader.PICC_AUTHENT1A, 8, key, uid)
 
         if status == MIFAREReader.MI_OK:
-            data1 = MIFAREReader.MFRC522_Read_Readdata(8)
-            data2 = MIFAREReader.MFRC522_Read_Readdata(9)
-            name =  "".join(map(chr, data1)) 
-            fname =  "".join(map(chr, data2))
-            print(name + fname)
+            data1 = MIFAREReader.MFRC522_Readdata(8)
+            data2 = MIFAREReader.MFRC522_Readdata(9)
+            name = "".join(map(chr, data1))
+            fname = "".join(map(chr, data2))
+            print(name+fname)
             MIFAREReader.MFRC522_StopCrypto1()
         else:
             print("Authentication error")
-
         time.sleep(1)
