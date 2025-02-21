@@ -45,8 +45,8 @@ while continue_reading:
             status = MIFAREReader.MFRC522_Auth(MIFAREReader.PICC_AUTHENT1A, 8, key, uid)
 
             if status == MIFAREReader.MI_OK:
-                name1 = "Tanamkorn"
-                name2 = "Youngmeesuk"
+                name1 = "Tanakorn        "
+                name2 = "Youngmeesuk     "
                 data1 = bytes(name1, 'ascii')
                 data2 = bytes(name2, 'ascii')
 
