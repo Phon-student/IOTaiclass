@@ -3,7 +3,7 @@ import MFRC522
 import signal
 import time
 
-
+print
 continue_reading = True
 
 
